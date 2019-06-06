@@ -13,8 +13,8 @@ export const setUserPreferencesModalOpen = state => ({
   state,
 });
 
-export const toggleLoadingBar = state => ({
-  type: 'TOGGLE_LOADING_BAR',
+export const setLoadingBar = state => ({
+  type: 'SET_LOADING_BAR',
   state,
 });
 
@@ -22,7 +22,7 @@ const actions = {
   setLeftSidebarOpen,
   setRightSidebarOpen,
   setUserPreferencesModalOpen,
-  toggleLoadingBar,
+  setLoadingBar,
 };
 
 export default actions;
