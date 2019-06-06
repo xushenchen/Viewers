@@ -4,6 +4,7 @@ const defaultState = {
   userPreferencesModalOpen: false,
   labelling: {},
   contextMenu: {},
+  isLoading: false,
 };
 
 const ui = (state = defaultState, action) => {
@@ -34,6 +35,11 @@ const ui = (state = defaultState, action) => {
         labelling: defaultState.labelling,
         contextMenu: defaultState.contextMenu,
       });
+    case 'TOGGLE_LOADING_BAR':
+      return Object.assign({}, state, {
+        isLoading: !state.isLoading,
+      });
+
     default:
       return state;
   }
