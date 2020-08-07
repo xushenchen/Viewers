@@ -16,7 +16,6 @@ export default async function loadRTStruct(
   studies
 ) {
   const rtStructModule = cornerstoneTools.getModule('rtstruct');
-
   // Set here is loading is asynchronous.
   // If this function throws its set back to false.
   rtStructDisplaySet.isLoaded = true;
@@ -68,7 +67,6 @@ export default async function loadRTStruct(
   const rtStructDisplayToolName = TOOL_NAMES.RTSTRUCT_DISPLAY_TOOL;
 
   for (let i = 0; i < ROIContourSequence.length; i++) {
-
     const ROIContour = ROIContourSequence[i];
     const { ReferencedROINumber, ContourSequence } = ROIContour;
 
@@ -76,12 +74,7 @@ export default async function loadRTStruct(
       continue;
     }
 
-    _setROIContourMetadata(
-      structureSet,
-      StructureSetROISequence,
-      RTROIObservationsSequence,
-      ROIContour
-    );
+    const isSupported = false;
 
     for (let c = 0; c < ContourSequence.length; c++) {
       const {
@@ -93,9 +86,11 @@ export default async function loadRTStruct(
 
       if (ContourGeometricType !== 'CLOSED_PLANAR') {
         // TODO: Do we want to visualise types other than closed planar?
-        // We could easily do open planar.
+        // We could easily do open planar and point.
         continue;
       }
+
+      isSupported = true;
 
       const sopInstanceUID = ContourImageSequence.ReferencedSOPInstanceUID;
       const imageId = _getImageId(imageIdSopInstanceUidPairs, sopInstanceUID);
@@ -128,6 +123,14 @@ export default async function loadRTStruct(
 
       imageIdSpecificToolData.push(measurementData);
     }
+
+    _setROIContourMetadata(
+      structureSet,
+      StructureSetROISequence,
+      RTROIObservationsSequence,
+      ROIContour,
+      isSupported
+    );
   }
 
   _setToolEnabledIfNotEnabled(rtStructDisplayToolName);
@@ -157,7 +160,8 @@ function _setROIContourMetadata(
   structureSet,
   StructureSetROISequence,
   RTROIObservationsSequence,
-  ROIContour
+  ROIContour,
+  isSupported
 ) {
   const StructureSetROI = StructureSetROISequence.find(
     structureSetROI =>
@@ -169,6 +173,7 @@ function _setROIContourMetadata(
     ROIName: StructureSetROI.ROIName,
     ROIGenerationAlgorithm: StructureSetROI.ROIGenerationAlgorithm,
     ROIDescription: StructureSetROI.ROIDescription,
+    isSupported,
     visible: true,
   };
 
@@ -238,7 +243,7 @@ function _setROIContourRTROIObservations(
 
 function _setToolEnabledIfNotEnabled(toolName) {
   cornerstone.getEnabledElements().forEach(enabledElement => {
-    const { element } = enabledElement;
+    const { element, image } = enabledElement;
     const tool = cornerstoneTools.getToolForElement(element, toolName);
 
     if (tool.mode !== 'enabled') {
@@ -246,7 +251,9 @@ function _setToolEnabledIfNotEnabled(toolName) {
       cornerstoneTools.setToolEnabled(toolName);
     }
 
-    cornerstone.updateImage(element);
+    if (image) {
+      cornerstone.updateImage(element);
+    }
   });
 }
 
